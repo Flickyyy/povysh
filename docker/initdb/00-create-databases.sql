@@ -1,0 +1,3 @@
+CREATE DATABASE west_branch;
+CREATE DATABASE east_branch;
+CREATE DATABASE dwh;

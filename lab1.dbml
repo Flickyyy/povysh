@@ -1,0 +1,52 @@
+Table Customer {
+  CustomerID SERIAL [pk]
+  Name VARCHAR(255) [not null, unique]
+  RowGuid UUID [unique, not null, default: "gen_random_uuid()"] // Generated surrogate across systems
+  ModifiedDate TIMESTAMP [not null, default: "CURRENT_TIMESTAMP"]
+}
+
+Table Product {
+  ProductID SERIAL [pk]
+  Name VARCHAR(255) [not null, unique]
+  CatalogPrice DECIMAL(10, 2) [not null]
+  RowGuid UUID [unique, not null, default: "gen_random_uuid()"]
+  ModifiedDate TIMESTAMP [not null, default: "CURRENT_TIMESTAMP"]
+}
+
+Table Category {
+  CategoryID SERIAL [pk]
+  Name VARCHAR(255) [not null, unique]
+  RowGuid UUID [unique, not null, default: "gen_random_uuid()"]
+  ModifiedDate TIMESTAMP [not null, default: "CURRENT_TIMESTAMP"]
+}
+
+Table ProductCategory {
+  ProductID INT [ref: > Product.ProductID]
+  CategoryID INT [ref: > Category.CategoryID]
+  RowGuid UUID [unique, not null, default: "gen_random_uuid()"]
+  ModifiedDate TIMESTAMP [not null, default: "CURRENT_TIMESTAMP"]
+  indexes {
+    (ProductID, CategoryID) [pk]
+  }
+}
+
+Table Deal {
+  DealID SERIAL [pk]
+  CustomerID INT [ref: > Customer.CustomerID]
+  TotalAmount DECIMAL(10, 2) [not null]
+  DealDate TIMESTAMP [not null, default: "CURRENT_TIMESTAMP"]
+  RowGuid UUID [unique, not null, default: "gen_random_uuid()"]
+  ModifiedDate TIMESTAMP [not null, default: "CURRENT_TIMESTAMP"]
+}
+
+Table DealProduct {
+  DealID INT [ref: > Deal.DealID]
+  ProductID INT [ref: > Product.ProductID]
+  Quantity INT [not null]
+  Price DECIMAL(10, 2) [not null]
+  RowGuid UUID [unique, not null, default: "gen_random_uuid()"]
+  ModifiedDate TIMESTAMP [not null, default: "CURRENT_TIMESTAMP"]
+  indexes {
+    (DealID, ProductID) [pk]
+  }
+}

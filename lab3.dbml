@@ -1,0 +1,105 @@
+// Таблицы из ЛР2 (база `dwh`)
+Table dim_date {
+  date_key UUID [pk]
+  full_date DATE [unique, not null]
+  year INTEGER [not null]
+  quarter INTEGER [not null]
+  month INTEGER [not null]
+  month_name VARCHAR(20) [not null]
+  day INTEGER [not null]
+  day_of_week INTEGER [not null]
+  day_name VARCHAR(20) [not null]
+  is_weekend BOOLEAN [not null]
+  rowguid UUID
+  modified_date TIMESTAMP
+}
+
+Table dim_branch {
+  branch_key UUID [pk]
+  branch_name VARCHAR(50) [unique, not null]
+  rowguid UUID
+  modified_date TIMESTAMP
+}
+
+Table dim_customer {
+  customer_key UUID [pk]
+  source_customer_id INTEGER [not null]
+  customer_name VARCHAR(255) [unique, not null]
+  rowguid UUID
+  modified_date TIMESTAMP
+}
+
+Table dim_product {
+  product_key UUID [pk]
+  source_product_id INTEGER [not null]
+  product_name VARCHAR(255) [not null]
+  rowguid UUID
+  modified_date TIMESTAMP
+}
+
+Table dim_category {
+  category_key UUID [pk]
+  category_name VARCHAR(255) [unique, not null]
+  rowguid UUID
+  modified_date TIMESTAMP
+}
+
+Table dim_product_category {
+  product_key UUID [ref: > dim_product.product_key]
+  category_key UUID [ref: > dim_category.category_key]
+  rowguid UUID
+  modified_date TIMESTAMP
+  indexes {
+    (product_key, category_key) [pk]
+  }
+}
+
+Table fact_sale {
+  sale_key UUID [pk]
+  date_key UUID [ref: > dim_date.date_key]
+  branch_key UUID [ref: > dim_branch.branch_key]
+  customer_key UUID [ref: > dim_customer.customer_key]
+  product_key UUID [ref: > dim_product.product_key]
+  quantity INTEGER [not null]
+  unit_price NUMERIC(10, 2) [not null]
+  source_deal_id INTEGER
+  source_deal_product_id INTEGER
+  rowguid UUID
+  modified_date TIMESTAMP
+}
+
+Table receipt {
+  receipt_key UUID [pk]
+  sale_key UUID [ref: > fact_sale.sale_key]
+  receipt_date TIMESTAMP [not null]
+  payment_method VARCHAR(50) [not null]
+  rowguid UUID
+  modified_date TIMESTAMP
+}
+
+// Новые объекты витрины (схема `dm`)
+Table dim_week {
+  week_key UUID [pk]
+  week_start_date DATE [not null]
+  week_end_date DATE [not null]
+  week_number INTEGER [not null]
+  year INTEGER [not null]
+  indexes {
+    (week_start_date, week_end_date) [unique]
+  }
+}
+
+Table fact_weekly_sales {
+  weekly_sale_key UUID [pk]
+  week_key UUID [ref: > dim_week.week_key]
+  branch_key UUID [ref: > dim_branch.branch_key]
+  product_key UUID [ref: > dim_product.product_key]
+  total_quantity_sold INTEGER [not null]
+  total_sales_amount NUMERIC(15, 2) [not null]
+  number_of_transactions INTEGER [not null]
+  receipt_count INTEGER [not null]
+  load_date TIMESTAMP
+  indexes {
+    (week_key, branch_key, product_key) [unique]
+  }
+}
