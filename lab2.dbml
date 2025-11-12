@@ -26,6 +26,9 @@ Table dim_customer {
   customer_name VARCHAR(255) [unique, not null]
   rowguid UUID
   modified_date TIMESTAMP
+  indexes {
+    (source_customer_id) [unique]
+  }
 }
 
 Table dim_product {
@@ -34,6 +37,9 @@ Table dim_product {
   product_name VARCHAR(255) [not null]
   rowguid UUID
   modified_date TIMESTAMP
+  indexes {
+    (source_product_id) [unique]
+  }
 }
 
 Table dim_category {
@@ -61,10 +67,14 @@ Table fact_sale {
   product_key UUID [ref: > dim_product.product_key]
   quantity INTEGER [not null]
   unit_price NUMERIC(10, 2) [not null]
-  source_deal_id INTEGER
-  source_deal_product_id INTEGER
+  source_deal_id INTEGER [not null]
+  source_deal_product_id INTEGER [not null]
   rowguid UUID
   modified_date TIMESTAMP
+  indexes {
+    (source_deal_product_id) [unique]
+    (source_deal_id)
+  }
 }
 
 Table receipt {
@@ -74,4 +84,7 @@ Table receipt {
   payment_method VARCHAR(50) [not null]
   rowguid UUID
   modified_date TIMESTAMP
+  indexes {
+    (sale_key) [unique]
+  }
 }

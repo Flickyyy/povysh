@@ -71,8 +71,8 @@ CREATE TABLE dwh.fact_sale (
 	product_key UUID NOT NULL REFERENCES dwh.dim_product(product_key),
 	quantity INTEGER NOT NULL,
 	unit_price NUMERIC(10, 2) NOT NULL,
-	source_deal_id INTEGER,
-	source_deal_product_id INTEGER,
+	source_deal_id INTEGER NOT NULL,
+	source_deal_product_id INTEGER NOT NULL,
 	rowguid UUID DEFAULT gen_random_uuid(),
 	modified_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -86,4 +86,12 @@ CREATE TABLE dwh.receipt (
 	rowguid UUID DEFAULT gen_random_uuid(),
 	modified_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS ux_receipt_sale ON dwh.receipt(sale_key);
+
+-- Ensure natural keys stay unique for idempotent loads
+CREATE UNIQUE INDEX IF NOT EXISTS ux_dim_customer_source ON dwh.dim_customer(source_customer_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_dim_product_source ON dwh.dim_product(source_product_id);
+CREATE UNIQUE INDEX IF NOT EXISTS ux_fact_sale_source ON dwh.fact_sale(source_deal_product_id);
+CREATE INDEX IF NOT EXISTS ix_fact_sale_deal ON dwh.fact_sale(source_deal_id);
 
